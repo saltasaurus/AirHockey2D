@@ -6,20 +6,16 @@ public class PlayerController : MonoBehaviour
 {
     #region default values
     private int player;
-    private Vector2 startPos;
-    private float startSpeed;
-    private float minStartBoundary;
-    private float maxStartBoundary;
+    private Vector2 _startPos;
+    private float _speed;
+    private float _minBoundary;
+    private float _maxBoundary;
     #endregion
 
-    public int playerScore = 0;
-    public float playerSpeed;
-    public float minBoundary;
-    public float maxBoundary;
+    public int playerScore;
 
-    private bool canMove = false;
     private Rigidbody2D rb;
-    private Vector2 direction;
+    private Vector2 _direction;
 
     private void Awake()
     {
@@ -30,45 +26,47 @@ public class PlayerController : MonoBehaviour
     public void setup(int number, Vector2 pos, Vector2 bounds, float speed = 750, int score = 0)
     {
         player = number;
-        startPos = pos;
-        startSpeed = speed;
-        minStartBoundary = bounds[0];
-        maxStartBoundary = bounds[1];
+        _startPos = pos;
+        _speed = speed;
+        _minBoundary = bounds[0];
+        _maxBoundary = bounds[1];
         playerScore = score;
     }
-    public void setupAfterPoint()
+    public void ResetPosition()
     {
-        setPosition(startPos);
-        setScore(playerScore);
-        setSpeed(startSpeed);
-        setBounds(minStartBoundary, maxStartBoundary);
+        _direction = Vector2.zero;
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.Sleep();
+        setPosition(_startPos);
     }
     #endregion
     #region Update
     private void Update()
     {
-        if (!canMove)
+        if (GameManager.Instance.PlayersCanMove)
         {
-            return;
+            Debug.Log("Can move");
+            _direction = getInput();
+            transform.position = new Vector2(transform.position.x, Mathf.Clamp(transform.position.y, _minBoundary, _maxBoundary));
         }
-        direction = getInput();
 
     }
 
     private void FixedUpdate()
     {
-        rb.velocity = playerSpeed * Time.deltaTime * direction.normalized;
+        if (GameManager.Instance.PlayersCanMove)
+        {
+            rb.velocity = _speed * Time.deltaTime * _direction.normalized;
+        }
     }
     #endregion
-    public void allowMovement(bool canPlayerMove)
-    {
-        canMove = canPlayerMove;
-    }
+
     #region Setters
 
     void setSpeed(float speed)
     {
-        playerSpeed = speed;
+        _speed = speed;
     }
     void setPosition(Vector2 position)
     {
@@ -76,15 +74,15 @@ public class PlayerController : MonoBehaviour
     }
     void setBounds(float minBound, float maxBound)
     {
-        minBoundary = minBound;
-        maxBoundary = maxBound;
+        _minBoundary = minBound;
+        _maxBoundary = maxBound;
     }
     #endregion
 
     #region Score
-    public void addPoint()
+    public void addPoint(int points)
     {
-        setScore(playerScore + 1);
+        setScore(playerScore + points);
     }
 
     public void setScore(int score)
