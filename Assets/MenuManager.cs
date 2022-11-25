@@ -1,10 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MenuManager : MonoBehaviour
 {
 	[SerializeField] Button _onePlayerButton;
 	[SerializeField] Button _twoPlayerButton;
+	[SerializeField] Button _mainMenuButton;
+	[SerializeField] Button _replayButton;
+	[SerializeField] Slider _mainMenuAiDifficultySlider;
+	[SerializeField] TextMeshProUGUI startMenuAIDifficulty;
+
+	public bool ButtonPressed = false;
+	public int difficulty = 1;
 	public ButtonStates ButtonState { get; private set; }
 	public enum ButtonStates 
     {
@@ -15,21 +23,38 @@ public class MenuManager : MonoBehaviour
 	void Start()
 	{
 		ButtonState = ButtonStates.Menu;
-		Button btn1player = _onePlayerButton.GetComponent<Button>();
-		Button btn2player = _twoPlayerButton.GetComponent<Button>();
-		btn1player.onClick.AddListener(OnClickOnePlayer);
-		btn2player.onClick.AddListener(OnClickTwoPlayer);
+		_onePlayerButton.onClick.AddListener(OnClickOnePlayer);
+		_twoPlayerButton.onClick.AddListener(OnClickTwoPlayer);
+		_mainMenuButton.onClick.AddListener(OnClickMainMenu);
+		_replayButton.onClick.AddListener(OnClickReplay);
+		_mainMenuAiDifficultySlider.onValueChanged.AddListener(OnSliderChange);
+
 	}
 
-	void OnClickOnePlayer()
+	void OnSliderChange(float value)
+    {
+		startMenuAIDifficulty.text = value.ToString();
+    }
+
+    void OnClickOnePlayer()
 	{
 		ButtonState = ButtonStates.OnePlayer;
-		Debug.Log("You have chosen 1 player mode");
+		difficulty = (int)_mainMenuAiDifficultySlider.value;
 
 	}
 	void OnClickTwoPlayer()
     {
 		ButtonState = ButtonStates.TwoPlayer;
-		Debug.Log("You have chosen 2 player mode");
+    }
+
+	void OnClickReplay()
+    {
+		ButtonPressed = true;
+    }
+
+	void OnClickMainMenu()
+    {
+		ButtonState = ButtonStates.Menu;
+		ButtonPressed = true;
     }
 }

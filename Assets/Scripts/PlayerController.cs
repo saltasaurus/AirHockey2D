@@ -15,11 +15,18 @@ public class PlayerController : MonoBehaviour
     public int playerScore;
 
     private Rigidbody2D rb;
+    private AIInput ai;
+    private bool _isAI;
+    private int difficulty;
     private Vector2 _direction;
+    private Vector3 _lastPosition = Vector3.zero;
+    
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        ai = GetComponent<AIInput>();
+        Debug.Log(ai);
     }
 
     #region Setup
@@ -40,15 +47,34 @@ public class PlayerController : MonoBehaviour
         rb.Sleep();
         setPosition(_startPos);
     }
+
+    public void isAI(bool ai, int aiDifficulty = 1)
+    {
+        _isAI = ai;
+        difficulty = aiDifficulty;
+        if (ai)
+        {
+            Debug.Log("AI set to " + difficulty + " difficulty");
+        }
+    }
     #endregion
     #region Update
     private void Update()
     {
         if (GameManager.Instance.PlayersCanMove)
         {
-            Debug.Log("Can move");
-            _direction = getInput();
-            transform.position = new Vector2(transform.position.x, Mathf.Clamp(transform.position.y, _minBoundary, _maxBoundary));
+            // If AI, use the AI input system, otherwise player input
+            if (_isAI) { _direction = ai.GetAIInput(difficulty); }
+            else { _direction = getInput(); }
+
+            // Cache transform
+            Vector2 pos = transform.position;
+
+            // Prevent player from moving across boundary
+            transform.position = new Vector2(pos.x, Mathf.Clamp(pos.y, _minBoundary, _maxBoundary));
+
+
+           
         }
 
     }
