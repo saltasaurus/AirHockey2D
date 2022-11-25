@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private AIInput ai;
     private bool _isAI;
     private int difficulty;
+    private float _speedbuff;
     private Vector2 _direction;
     private Vector3 _lastPosition = Vector3.zero;
     
@@ -30,14 +31,15 @@ public class PlayerController : MonoBehaviour
     }
 
     #region Setup
-    public void setup(int number, Vector2 pos, Vector2 bounds, float speed = 750, int score = 0)
+    public void setup(int number, Vector2 pos, Vector2 bounds, float speed = 250, int score = 0)
     {
         player = number;
         _startPos = pos;
-        _speed = speed;
+        _speed = speed + _speedbuff;
         _minBoundary = bounds[0];
         _maxBoundary = bounds[1];
         playerScore = score;
+        Debug.Log(_speed + speed);
     }
     public void ResetPosition()
     {
@@ -48,14 +50,13 @@ public class PlayerController : MonoBehaviour
         setPosition(_startPos);
     }
 
-    public void isAI(bool ai, int aiDifficulty = 1)
+    public void isAI(bool isAI, int aiDifficulty = 2)
     {
-        _isAI = ai;
-        difficulty = aiDifficulty;
-        if (ai)
-        {
-            Debug.Log("AI set to " + difficulty + " difficulty");
-        }
+        _isAI = isAI;
+        ai.setDifficulty(aiDifficulty);
+        _speedbuff = 250 * aiDifficulty;
+        Debug.Log("Speed " + _speed);
+        
     }
     #endregion
     #region Update
@@ -64,7 +65,7 @@ public class PlayerController : MonoBehaviour
         if (GameManager.Instance.PlayersCanMove)
         {
             // If AI, use the AI input system, otherwise player input
-            if (_isAI) { _direction = ai.GetAIInput(difficulty); }
+            if (_isAI) { _direction = ai.GetAIInput(); }
             else { _direction = getInput(); }
 
             // Cache transform

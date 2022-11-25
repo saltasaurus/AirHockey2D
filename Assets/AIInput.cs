@@ -6,10 +6,12 @@ public class AIInput : MonoBehaviour
 {
     private Vector2 _puckPos;
     private Vector2 _lastPuckPos;
-    private int _framesBeforeNewInput = 10;
+    private int _baseFramesBeforeNewInput = 30;
+    private int _framesBeforeNewInput;
     private int _framesSinceInput;
     private int _delay = 0;
     private Vector2 _direction;
+    private int difficulty;
 
     private float _consecutiveFramesTooClose = 0;
     // Start is called before the first frame update
@@ -18,11 +20,18 @@ public class AIInput : MonoBehaviour
         _framesSinceInput = _framesBeforeNewInput - _delay;
     }
 
-    public Vector2 GetAIInput(int difficulty)
+    public void setDifficulty(int diff)
+    {
+        difficulty = Mathf.Clamp(diff, 1, 3);
+        _framesBeforeNewInput = (int)(_baseFramesBeforeNewInput / difficulty);
+
+    }
+
+    public Vector2 GetAIInput()
     {
         // Only get new input after a certain number of frames;
         _framesSinceInput += 1;
-        if (_framesSinceInput < _framesBeforeNewInput) { return _direction; }
+        if (_framesSinceInput < (_framesBeforeNewInput / difficulty)) { return _direction; }
         _framesSinceInput = 0;
         
 
